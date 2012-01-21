@@ -9,9 +9,19 @@
 (defn random-choice [coll]
   (nth coll (rand-int (count coll))))
 
+(defn random-choice-weighted [choices]
+  (let [n (apply + (vals choices))
+        i (inc (rand-int n))]
+    (loop [i i
+           choices (seq choices)]
+      (let [[word weight] (first choices)
+            new-i (- i weight)]
+        (if (<= new-i 0)
+          word
+          (recur new-i (rest choices)))))))
+
 
 ; Gtypist ---------------------------------------------------------------------
-
 (defn to-gtypist-single [lesson n]
   (str "*:S_LESSON" n "\n"
        "B:Lesson " n "\n"
@@ -32,22 +42,36 @@
                        (range 1 (inc (count lessons)))))))
 
 
+; Markov ----------------------------------------------------------------------
+(defn markov-dict
+  ([words]
+   (markov-dict {} words))
+  ([dict words]
+   (if (not (second words))
+     dict
+     (let [w (first words)
+           n (second words)]
+       (recur (assoc-in dict [w n]
+                        (inc (get-in dict [w n] 0)))
+              (rest words))))))
+
+(defn markov-get [dict word]
+  (if (dict word)
+    (random-choice-weighted (dict word))
+    (random-choice (keys dict))))
+
+
 ; Lesson generation -----------------------------------------------------------
-(defn markov-dict [words]
-  (zipmap words (cycle [""])))
-
-(defn markov-get [dict]
-  (random-choice (keys dict)))
-
 (defn get-line [dict]
-  (let [words (repeatedly 10 (partial markov-get dict))]
+  (let [initial-word (random-choice (keys dict))
+        words (take 10 (iterate (partial markov-get dict) initial-word))]
     (trim (apply str (interleave words (cycle [" "]))))))
 
 (defn get-single [dict n]
   (repeatedly 4 (partial get-line dict)))
 
 (defn get-lesson [text]
-  (let [words (doall (filter (comp not empty?) (split text #"\s+")))
+  (let [words (take 20000 (filter (comp not empty?) (split text #"\s+")))
         dict (markov-dict words)
         lessons (map (partial get-single dict) (range 0 10))]
     (to-gtypist lessons)))
@@ -56,7 +80,7 @@
 ; Home page -------------------------------------------------------------------
 (defn text-valid? [{:keys [text]}]
   (valid/rule (valid/min-length? text 24)
-              [:text "You must enter some text!"])
+              [:text "You must enter a decent amount of text!"])
   (not (valid/errors? :text)))
 
 
