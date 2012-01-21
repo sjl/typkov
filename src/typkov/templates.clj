@@ -1,4 +1,5 @@
 (ns typkov.templates
+  (:require [noir.validation :as valid])
   (:use [noir.core :only [defpartial]]
         [hiccup.page-helpers :only [include-css html5 include-js link-to]]))
 
@@ -21,13 +22,18 @@
         (link-to "http://stevelosh.com/" "Steve Losh")
         "."]]]]))
 
+(defpartial error-item [[first-error]]
+  [:div.alert-message.error first-error])
 
-(defpartial home []
+(defpartial home [text lesson]
   (base "Typkov"
         [:p "Enter some text and we'll create a gtypist lesson from it for you."]
         [:form {:method "post" :action "" :class "form-stacked"}
          [:fieldset.text
           [:label {:for "text"}
            "Text"]
-          [:textarea#text {:name "text"}]]
-         [:button {:type "submit" :class "btn primary"} "Get a Lesson"]]))
+          (valid/on-error :text error-item)
+          [:textarea#text.error {:name "text"} text]]
+         [:button {:type "submit" :class "btn primary"} "Get a Lesson"]]
+        (when lesson
+          [:pre lesson])))
