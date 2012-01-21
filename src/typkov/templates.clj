@@ -1,6 +1,6 @@
 (ns typkov.templates
   (:use [noir.core :only [defpartial]]
-        [hiccup.page-helpers :only [include-css html5 include-js]]))
+        [hiccup.page-helpers :only [include-css html5 include-js link-to]]))
 
 (defpartial base [title & content]
   (html5
@@ -10,9 +10,24 @@
      [:link {:rel "stylesheet/less" :type "text/css" :href "/css/style.less"}]
      (include-js "/js/less.js")]
     [:body
-     [:div#wrapper
-      content]]))
+     [:div#content
+      [:header
+       [:h1 "Typkov"]
+       [:h2 "Create gtypist lessons from your own writing!"]]
+      content
+      [:footer
+       [:p
+        "Created by "
+        (link-to "http://stevelosh.com/" "Steve Losh")
+        "."]]]]))
 
 
 (defpartial home []
-  (base "Typkov"))
+  (base "Typkov"
+        [:p "Enter some text and we'll create a gtypist lesson from it for you."]
+        [:form {:method "post" :action "" :class "form-stacked"}
+         [:fieldset.text
+          [:label {:for "text"}
+           "Text"]
+          [:textarea#text {:name "text"}]]
+         [:button {:type "submit" :class "btn primary"} "Get a Lesson"]]))
