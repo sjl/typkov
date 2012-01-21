@@ -4,6 +4,22 @@
         [hiccup.page-helpers :only [include-css html5 include-js link-to]]))
 
 
+(def gauges "
+  <script type='text/javascript'>
+    var _gauges = _gauges || [];
+    (function() {
+      var t   = document.createElement('script');
+      t.type  = 'text/javascript';
+      t.async = true;
+      t.id    = 'gauges-tracker';
+      t.setAttribute('data-site-id', '4f1b29ce613f5d7d9b000001');
+      t.src = '//secure.gaug.es/track.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(t, s);
+    })();
+  </script>")
+
+
 (defpartial base [title & content]
   (html5
     [:head
@@ -30,7 +46,8 @@
         (link-to "http://bitbucket.org/sjl/typkov" "on BitBucket")
         " and "
         (link-to "http://github.com/sjl/typkov" "on GitHub")
-        "."]]]]]))
+        "."]]]
+      gauges]]))
 
 
 (defpartial error-item [[first-error]]
