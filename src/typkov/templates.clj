@@ -3,6 +3,7 @@
   (:use [noir.core :only [defpartial]]
         [hiccup.page-helpers :only [include-css html5 include-js link-to]]))
 
+
 (defpartial base [title & content]
   (html5
     [:head
@@ -36,4 +37,4 @@
           [:textarea#text.error {:name "text"} text]]
          [:button {:type "submit" :class "btn primary"} "Get a Lesson"]]
         (when lesson
-          [:pre lesson])))
+          [:textarea.lesson lesson])))
