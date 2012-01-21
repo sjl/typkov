@@ -6,3 +6,4 @@ classes/
 .lein-deps-sum
 gtypist
 text.txt
+test.txt
