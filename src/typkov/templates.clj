@@ -54,7 +54,7 @@
   [:div.alert-message.error first-error])
 
 
-(defpartial home [text lesson]
+(defpartial home [text num lesson]
   (base "Typkov"
         [:p
          "Typing practice is great, but wouldn't it be wonderful to "
@@ -68,14 +68,24 @@
           [:label {:for "text"}
            "Paste in some text you've written:"]
           (valid/on-error :text error-item)
-          [:textarea#text.error {:name "text"} text]]
+          [:textarea#text {:name "text"} text]]
+         [:fieldset.num
+          [:label {:for "num"}
+           "How many drills do you want?"]
+          (valid/on-error :num error-item)
+          [:select#num {:name "num"}
+           (map (fn [n]
+                  [:option (merge {:value n}
+                                  (when (= num n) {:selected "selected"}))
+                   n])
+                (range 10 51 10))]]
          [:button {:type "submit" :class "btn primary"} "Get a Lesson"]]
         (when lesson
           (list
             [:p
              "Copy all of the following into a "
              [:code "whatever.typ"]
-             " file and use "
+             " file and run "
              [:code "gtypist whatever.typ"]
              " to use it!"]
             [:textarea.lesson lesson]))))

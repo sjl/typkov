@@ -1,7 +1,7 @@
 (ns typkov.views.core
   (:require [typkov.templates :as t])
   (:require [noir.validation :as valid])
-  (:use [clojure.string :only [split trim]])
+  (:require [clojure.string :as string])
   (:use [noir.core :only [render defpage]]))
 
 
@@ -62,33 +62,43 @@
 
 
 ; Lesson generation -----------------------------------------------------------
+(defn sanitize [s]
+  (-> s
+    (string/replace \’ \')
+    (string/replace \” \")
+    (string/replace \“ \")))
+
 (defn get-line [dict]
   (let [initial-word (random-choice (keys dict))
         words (take 10 (iterate (partial markov-get dict) initial-word))]
-    (trim (apply str (interleave words (cycle [" "]))))))
+    (string/trim (apply str (interleave words (cycle [" "]))))))
 
 (defn get-single [dict n]
   (repeatedly 4 (partial get-line dict)))
 
-(defn get-lesson [text]
-  (let [words (take 20000 (filter (comp not empty?) (split text #"\s+")))
+(defn get-lesson [text n]
+  (let [words (take 20000 (filter (comp not empty?)
+                                  (string/split (sanitize text)
+                                                #"\s+")))
         dict (markov-dict words)
-        lessons (map (partial get-single dict) (range 0 10))]
+        lessons (map (partial get-single dict) (range 0 n))]
     (to-gtypist lessons)))
 
 
 ; Home page -------------------------------------------------------------------
-(defn text-valid? [{:keys [text]}]
+(defn form-valid? [{:keys [text]}]
   (valid/rule (valid/min-length? text 24)
               [:text "You must enter a decent amount of text!"])
   (not (valid/errors? :text)))
 
 
 (defpage "/" {:as data}
-  (t/home (:text data) nil))
+  (t/home (:text data) 10 nil))
 
 (defpage [:post "/"] {:as data}
-  (if (text-valid? data)
+  (if (form-valid? data)
     (t/home (:text data)
-            (get-lesson (:text data)))
+            (Integer/parseInt (:num data))
+            (get-lesson (:text data)
+                        (Integer/parseInt (:num data))))
     (render "/" data)))
