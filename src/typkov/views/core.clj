@@ -131,4 +131,4 @@
             (:format data)
             (get-lesson (:text data)
                         (:format data)
-                        (Integer/parseInt (:num data))))))
+                        (min (Integer/parseInt (:num data)) 50)))))
