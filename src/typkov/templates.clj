@@ -21,6 +21,11 @@
     })();
   </script>")
 
+(def rochester-made "
+<a id='rochester-made' href='http://rochestermade.com' title='Rochester Made'><img src='http://rochestermade.com/media/images/rochester-made-dark-on-light.png' alt='Rochester Made' title='Rochester Made' /></a>
+  ")
+
+
 (defpartial select [id name options selected]
   [:select {:name name :id id}
    (map (fn [o]
@@ -49,16 +54,18 @@
         "Create typing lessons from your own writing!"]]
       content
       [:footer
+       rochester-made
        [:p
         "Created by "
         (link-to "http://stevelosh.com/" "Steve Losh")
         "."
         [:p
-        "It's open source "
-        (link-to "http://bitbucket.org/sjl/typkov" "on BitBucket")
-        " and "
-        (link-to "http://github.com/sjl/typkov" "on GitHub")
-        "."]]]
+         "It's open source"
+         [:br]
+         (link-to "http://bitbucket.org/sjl/typkov" "on BitBucket")
+         " and "
+         (link-to "http://github.com/sjl/typkov" "on GitHub")
+         "."]]]
       gauges]]))
 
 
